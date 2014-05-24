@@ -17,6 +17,7 @@ e-mail   :  support@circuitsathome.com
 /* USB functions */
 
 #include "Usb.h"
+HardwareSPI spi1(1);
 
 static uint8_t usb_error = 0;
 static uint8_t usb_task_state;

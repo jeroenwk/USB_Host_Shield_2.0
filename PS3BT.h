@@ -117,7 +117,7 @@ public:
          * Read the temperature from the Move controller.
          * @return The temperature in degrees Celsius.
          */
-        String getTemperature();
+        //String getTemperature();
 
         /** Used to set all LEDs and rumble off. */
         void setAllOff();

@@ -869,8 +869,38 @@ MAKE_PIN(P76, PIOA, PIO_PA27); // CLK
 
 #undef MAKE_PIN
 
+#elif STM32
+
+#define MAKE_PIN(className, pio) \
+class className { \
+public: \
+  static void Set() { \
+    digitalWrite(pio, HIGH); \
+  } \
+  static void Clear() { \
+    digitalWrite(pio, LOW); \
+  } \
+  static void SetDirRead() { \
+    pinMode(pio, INPUT); \
+  } \
+  static void SetDirWrite() { \
+    pinMode(pio, OUTPUT); \
+  } \
+  static uint8_t IsSet() { \
+    return (bool) digitalRead(pio); \
+  } \
+};
+
+MAKE_PIN(P9, 9); // INT
+MAKE_PIN(P10, 10); // SS
+MAKE_PIN(P11, 11); // MISO
+MAKE_PIN(P12, 12); // MOSI
+MAKE_PIN(P13, 13); // CLK
+
 #else
+
 #error "Please define board in avrpins.h"
+
 
 #endif
 

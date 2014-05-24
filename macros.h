@@ -78,5 +78,6 @@ e-mail   :  support@circuitsathome.com
 #define USBTRACE3(s,r,l) (Notify(PSTR(s), l), D_PrintHex((r), l), Notify(PSTR("\r\n"), l))
 
 
+
 #endif	/* MACROS_H */
 

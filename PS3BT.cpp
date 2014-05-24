@@ -140,7 +140,7 @@ double PS3BT::get9DOFValues(SensorEnum a) { // Thanks to Manfred Piendl
         } else
                 return 0;
 }
-
+/*
 String PS3BT::getTemperature() {
         if(PS3MoveConnected) {
                 int16_t input = getSensor(tempMove);
@@ -155,7 +155,7 @@ String PS3BT::getTemperature() {
         } else
                 return "Error";
 }
-
+*/
 bool PS3BT::getStatus(StatusEnum c) {
         return (l2capinbuf[(uint16_t)c >> 8] == ((uint8_t)c & 0xff));
 }

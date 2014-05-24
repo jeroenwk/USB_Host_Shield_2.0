@@ -71,6 +71,27 @@ e-mail   :  support@circuitsathome.com
 #define USE_SPI4TEENSY3 1
 #endif
 
+#define STM32 1
+
+#ifdef STM32
+#include <libmaple.h>
+#include <string.h>
+
+typedef const unsigned char prog_uchar;
+#define pgm_read_byte_near(x) (*(prog_uchar*)x)
+#define pgm_read_byte(x) (*(prog_uchar*)x)
+#define pgm_read_word(x) (*(prog_uchar*)x)
+#define pgm_read_dword(x) (*(prog_uchar*)x)
+
+#define Serial Serial2
+#define PROGMEM
+#define strcpy_P strcpy
+#define strcat_P strcat
+#define PSTR(s) (__extension__({static const char __c[] = (s); &__c[0];})) // Copied from pgmspace.h in avr-libc source
+#endif
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // AUTOMATIC Settings
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,9 +103,10 @@ e-mail   :  support@circuitsathome.com
 #include <Arduino.h>
 #else
 #include <WProgram.h>
+#ifndef STM32
 #include <pins_arduino.h>
-#include <avr/pgmspace.h>
 #include <avr/io.h>
+#endif
 #define F(str) (str)
 #endif
 

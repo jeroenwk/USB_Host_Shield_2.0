@@ -27,10 +27,23 @@ e-mail   :  support@circuitsathome.com
 #include <sys/types.h>
 #endif
 
+
+
+extern HardwareSPI spi1;
+
 /* SPI initialization */
 template< typename SPI_CLK, typename SPI_MOSI, typename SPI_MISO, typename SPI_SS > class SPi {
 public:
-#if USING_SPI4TEENSY3
+#if STM32
+        static void init() {
+                // stm32 inits everything for us, except /SS
+                // CLK, MOSI and MISO are hard coded for now.
+                //spi1(1);
+                spi1.begin(SPI_2_25MHZ, LSBFIRST, 0);
+                SPI_SS::SetDirWrite();
+                SPI_SS::Set();
+        }
+#elif USING_SPI4TEENSY3
         static void init() {
                 // spi4teensy3 inits everything for us, except /SS
                 // CLK, MOSI and MISO are hard coded for now.
@@ -74,6 +87,8 @@ typedef SPi< Pb7, Pb5, Pb6, Pb4 > spi;
 typedef SPi< P13, P11, P12, P10 > spi;
 #elif defined(ARDUINO_SAM_DUE) && defined(__SAM3X8E__)
 typedef SPi< P76, P75, P74, P10 > spi;
+#elif STM32
+typedef SPi< P13, P11, P12, P10 > spi;
 #else
 #error "No SPI entry in usbhost.h"
 #endif
@@ -135,7 +150,12 @@ void MAX3421e< SPI_SS, INTR >::regWr(uint8_t reg, uint8_t data) {
         c[0] = reg | 0x02;
         c[1] = data;
         spi4teensy3::send(c, 2);
-#elif defined(ARDUINO_SAM_DUE) && defined(__SAM3X8E__)
+#elif defined(STM32)
+		uint8_t c[2];
+        c[0] = reg | 0x02;
+        c[1] = data;
+        spi1.write(c, 2);
+#elif defined(ARDUINO_SAM_DUE) && defined(__SAM3X8E__) || defined(STM32)
         SPI.transfer(reg | 0x02);
         SPI.transfer(data);
 #else
@@ -158,6 +178,10 @@ uint8_t* MAX3421e< SPI_SS, INTR >::bytesWr(uint8_t reg, uint8_t nbytes, uint8_t*
 #if USING_SPI4TEENSY3
         spi4teensy3::send(reg | 0x02);
         spi4teensy3::send(data_p, nbytes);
+        data_p += nbytes;
+#elif defined(STM32)
+		spi1.write(reg | 0x02);
+        spi1.write(data_p, nbytes);
         data_p += nbytes;
 #elif defined(ARDUINO_SAM_DUE) && defined(__SAM3X8E__)
         SPI.transfer(reg | 0x02);
@@ -201,6 +225,10 @@ uint8_t MAX3421e< SPI_SS, INTR >::regRd(uint8_t reg) {
         spi4teensy3::send(reg);
         uint8_t rv = spi4teensy3::receive();
         SPI_SS::Set();
+#elif STM32
+		spi1.write(reg);
+        uint8_t rv = spi1.read();
+        SPI_SS::Set();
 #elif defined(ARDUINO_SAM_DUE) && defined(__SAM3X8E__)
         SPI.transfer(reg);
         uint8_t rv = SPI.transfer(0);
@@ -226,6 +254,10 @@ uint8_t* MAX3421e< SPI_SS, INTR >::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t*
 #if USING_SPI4TEENSY3
         spi4teensy3::send(reg);
         spi4teensy3::receive(data_p, nbytes);
+        data_p += nbytes;
+#elif STM32
+		spi1.write(reg);
+        spi1.read(data_p, nbytes);
         data_p += nbytes;
 #elif defined(ARDUINO_SAM_DUE) && defined(__SAM3X8E__)
         SPI.transfer(reg);
